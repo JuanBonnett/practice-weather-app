@@ -39,43 +39,73 @@ const RAIN_CLOUD_THRESHOLDS = [
     [PINF, { title : 'Very Heavy Rain', icon : 'storm.png' }],
 ];
 
-const appState = {
-    pos : {},
-    geolocation : false,
-};
-
 const btnFromCoords = document.getElementById('from-coords');
 const btnFromGeo = document.getElementById('from-geo');
 const btnRefresh = document.getElementById('refresh');
 
-function geoLocSuccess(pos) {
-    console.log('GeoLocation Success!');
-    console.log(`Latitude: ${pos.coords.latitude}`);
-    console.log(`Longitude: ${pos.coords.longitude}`);
-    document.getElementById('lat-input').value = pos.coords.latitude;
-    document.getElementById('lon-input').value = pos.coords.longitude;
+const APP_STATE = appState();
 
-    callAPIs(pos);
-    appState.geolocation = true;
+function appState() {
+    let latitude;
+    let longitude;
+    let geolocation = true;
+
+    function updateCoords(newLat, newLon) {
+        latitude = newLat;
+        longitude = newLon;
+    }
+
+    function toggleGeoLocation(value) {
+        geolocation = value;
+    }
+
+    function getCoords() {
+        return {
+            latitude,
+            longitude
+        };
+    }
+
+    function getLatitude() {
+        return latitude;
+    }
+
+    function getLongitude() {
+        return longitude;
+    }
+
+    function isGeolocationActive() {
+        return geolocation;
+    }
+
+    return {updateCoords, toggleGeoLocation, getCoords, isGeolocationActive, getLatitude, getLongitude};
 }
 
-function callAPIs(pos) {
-    getOpenMeteo(pos.coords, displayCurrentWeather);
-    getCity(pos.coords, (city) => {
+function geoLocSuccess(lat, lon) {
+    console.log('GeoLocation Success!');
+    console.log(`Latitude: ${lat}`);
+    console.log(`Longitude: ${lon}`);
+    document.getElementById('lat-input').value = lat;
+    document.getElementById('lon-input').value = lon;
+
+    callAPIs(lat, lon);
+}
+
+function callAPIs(lat, lon) {
+    getOpenMeteo(lat, lon, displayCurrentWeather);
+    getCity(lat, lon, (city) => {
         document.getElementById('city').innerHTML = city;
     });
-
-    appState.pos = pos;
 }
 
 function geoLocError(error) {
     console.warn(error.message);
 }
 
-function getOpenMeteo(coords, callBack) {
+function getOpenMeteo(lat, lon, callBack) {
     const baseUrl = 'https://api.open-meteo.com/v1/forecast?';
-    const urlParams = 'latitude=' + coords.latitude + 
-                      '&longitude=' + coords.longitude + 
+    const urlParams = 'latitude=' + lat + 
+                      '&longitude=' + lon + 
                       '&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,cloud_cover,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&timezone=auto';
     const url = baseUrl + urlParams;
     
@@ -152,8 +182,8 @@ function displayCurrentWeather(data) {
     iconTimeOfDay.src = current.is_day == 1 ? ICON_PATH + DAY_ICON : ICON_PATH + NIGHT_ICON;
 }
 
-function getCity(coords, callBack) {
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${coords.latitude},${coords.longitude}` +
+function getCity(lat, lon, callBack) {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}` +
                 `&result_type=administrative_area_level_2|country&key=${G_KEY}`;
     
     fetch(url)
@@ -172,12 +202,17 @@ function getGeoLoc() {
         enableHighAccuracy : true,
         timeout : 5000,
         maximumAge : 0,
-    }
-    navigator.geolocation.getCurrentPosition(geoLocSuccess, geoLocError, geoLocOptions);
+    };
+
+    navigator.geolocation.getCurrentPosition((pos) => {
+        APP_STATE.updateCoords(pos.coords.latitude, pos.coords.longitude);
+        APP_STATE.toggleGeoLocation(true);
+        geoLocSuccess(pos.coords.latitude, pos.coords.longitude);
+    }, 
+    geoLocError, geoLocOptions);
 }
 
 function formatDate(dateString) {
-    console.log(dateString);
     const date = new Date(dateString);
     const options = { 
         year: 'numeric', 
@@ -198,24 +233,20 @@ btnFromCoords.addEventListener('click', () => {
     const lat = document.getElementById('lat-input').value;
     const lon = document.getElementById('lon-input').value;
 
-    appState.geolocation = false;
+    APP_STATE.updateCoords(lat, lon);
+    APP_STATE.toggleGeoLocation(false);
 
-    callAPIs({
-        coords : {
-            latitude : lat,
-            longitude : lon,
-        }
-    });
+    callAPIs(lat, lon);
 });
 
 btnFromGeo.addEventListener('click', getGeoLoc);
 
 btnRefresh.addEventListener('click', () => {
-    if(appState.geolocation) {
-        getGeoLoc();
-        return;
+    if(APP_STATE.isGeolocationActive()) getGeoLoc();
+    else {
+        const coords = APP_STATE.getCoords();
+        callAPIs(coords.latitude, coords.longitude);
     }
-    callAPIs(appState.pos);
 });
 
 //Program starts with Geo Location by default
