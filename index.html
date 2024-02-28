@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-wrapper" class="grid">
+        
+        <div class="tools flex">
+            <div class="card">
+                <div class="title">
+                    <h1 id="city"></h1>
+                    <h2>Elevation: <span id="elevation"></span> ASL</h2>
+                    <h3><b>Weather From: </b><span id="current_date"></span></h3>
+                </div>
+                <div class="refresh-button-wrapper flex">
+                    <button id="from-geo">Get From Geolocation</button>
+                    <button id="refresh">Refresh</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="title">
+                    <h1>Get current weather from coordinates</h1>
+                </div>
+                <div class="coords-wrapper flex">
+                    <label> Latitude
+                    <input type="text" placeholder="Latitude" id="lat-input"></label>
+
+                    <label> Longitude
+                    <input type="text" placeholder="Longitude" id="lon-input"></label>
+                </div>
+                <div class="coords-button-wrapper flex">
+                    <button id="from-coords">Get Weather</button>
+                </div>
+            </div>
+        </div>
+        <div class="results">
+            <div class="widget">
+                <div class="card temperature">
+                    <h3>Temperature</h3>
+                    <div class="main-wrapper">
+                        <img src="icons/thermometer.png" id="temp-icon" class="icon">
+                        <div id="temp">
+                            Loading...
+                        </div>
+                    </div>
+                    <div class="secondary-wrapper">
+                        <div>
+                            <img src="icons/thermometer.png" class="small-icon">
+                            <p class="data"  id="apparent_temp"></p>
+                            <p class="small-label">Feels like</p> 
+                        </div>
+                        <div>
+                            <img src="icons/humidity.png" class="small-icon">
+                            <p class="data" id="humidity"></p>
+                            <p class="small-label">Humidity</p>
+                        </div>
+                        <div>
+                            <img src="icons/pressure.png" class="small-icon">
+                            <p class="data"  id="pressure"></p>
+                            <p class="small-label">Pressure</p>
+                        </div>
+                    </div> 
+                </div>
+
+
+                <div class="card clouds">
+                    <h3>Clouds & Precipitation</h3>
+                    <div class="main-wrapper">
+                        <div id="cloud-icons">
+                            <img src="icons/clear.png" id="time_of_day">
+                            <img src="icons/cloud1.png" id="coverage">
+                        </div>
+                        <div id="cloud_description">
+                            Loading...
+                        </div>
+                    </div>
+                    <div class="secondary-wrapper">
+                        <div>
+                            <img src="icons/cloud-cover.png" class="small-icon">
+                            <p class="data"  id="cloud_cover"></p>
+                            <p class="small-label">Cloud Cover</p> 
+                        </div>
+                        <div>
+                            <img src="icons/rain.png" class="small-icon">
+                            <p class="data"  id="rain"></p>
+                            <p class="small-label">Rain</p>
+                        </div>
+                        <div>
+                            <img src="icons/shower.png" class="small-icon">
+                            <p class="data"  id="showers"></p>
+                            <p class="small-label">Showers</p>
+                        </div>
+                        <div>
+                            <img src="icons/precipitation.png" class="small-icon">
+                            <p class="data"  id="precipitation"></p>
+                            <p class="small-label">Total Prec.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card winds">
+                    <h3>Winds</h3>
+                    <div class="main-wrapper">
+                        <div id="direction_icons">
+                            <img src="icons/north.png" id="north">
+                            <img src="icons/arrowhead.png" id="arrow_head">
+                        </div>
+                        <div id="wind_description">
+                            Loading...
+                        </div>
+                    </div>
+                    <div class="secondary-wrapper">
+                        <div>
+                            <img src="icons/wind-sock.png" class="small-icon">
+                            <p class="data"  id="wind_speed"></p>
+                            <p class="small-label">Speed</p> 
+                        </div>
+                        <div>
+                            <img src="icons/gusts.png" class="small-icon">
+                            <p class="data"  id="wind_gusts"></p>
+                            <p class="small-label">Gusts</p> 
+                        </div>
+                        <div>
+                            <img src="icons/direction.png" class="small-icon">
+                            <p class="data"  id="wind_direction"></p>
+                            <p class="small-label">Direction</p> 
+                        </div>
+                    </div>
+                </div>  
+
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
