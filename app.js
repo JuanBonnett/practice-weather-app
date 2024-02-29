@@ -81,19 +81,17 @@ function appState() {
     return {updateCoords, toggleGeoLocation, getCoords, isGeolocationActive, getLatitude, getLongitude};
 }
 
-function geoLocSuccess(lat, lon) {
+function geoLocSuccess(lat, lng) {
     console.log('GeoLocation Success!');
     console.log(`Latitude: ${lat}`);
-    console.log(`Longitude: ${lon}`);
-    document.getElementById('lat-input').value = lat;
-    document.getElementById('lon-input').value = lon;
-
-    callAPIs(lat, lon);
+    console.log(`Longitude: ${lng}`);
+    updateCoordsText(lat, lng);
+    callAPIs(lat, lng);
 }
 
-function callAPIs(lat, lon) {
-    getOpenMeteo(lat, lon, displayCurrentWeather);
-    getCity(lat, lon, (city) => {
+function callAPIs(lat, lng) {
+    getOpenMeteo(lat, lng, displayCurrentWeather);
+    getCity(lat, lng, (city) => {
         document.getElementById('city').innerHTML = city;
     });
 }
@@ -102,10 +100,10 @@ function geoLocError(error) {
     console.warn(error.message);
 }
 
-function getOpenMeteo(lat, lon, callBack) {
+function getOpenMeteo(lat, lng, callBack) {
     const baseUrl = 'https://api.open-meteo.com/v1/forecast?';
     const urlParams = 'latitude=' + lat + 
-                      '&longitude=' + lon + 
+                      '&longitude=' + lng + 
                       '&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,cloud_cover,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&timezone=auto';
     const url = baseUrl + urlParams;
     
@@ -182,8 +180,8 @@ function displayCurrentWeather(data) {
     iconTimeOfDay.src = current.is_day == 1 ? ICON_PATH + DAY_ICON : ICON_PATH + NIGHT_ICON;
 }
 
-function getCity(lat, lon, callBack) {
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}` +
+function getCity(lat, lng, callBack) {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}` +
                 `&result_type=administrative_area_level_2|country&key=${G_KEY}`;
     
     fetch(url)
@@ -207,6 +205,7 @@ function getGeoLoc() {
     navigator.geolocation.getCurrentPosition((pos) => {
         APP_STATE.updateCoords(pos.coords.latitude, pos.coords.longitude);
         APP_STATE.toggleGeoLocation(true);
+        initMap(pos.coords.latitude, pos.coords.longitude);
         geoLocSuccess(pos.coords.latitude, pos.coords.longitude);
     }, 
     geoLocError, geoLocOptions);
@@ -227,16 +226,48 @@ function formatDate(dateString) {
     return date.toLocaleString('en-US', options);
 }
 
+async function initMap(lat, lng) {
+  const position = { lat: lat, lng: lng };
+  const { Map } = await google.maps.importLibrary("maps");
+  const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+
+  const map = new Map(document.getElementById("map"), {
+    zoom: 11,
+    center: position,
+    mapId: "WEATHER-APP",
+  });
+
+  const marker = new AdvancedMarkerElement({
+    map: map,
+    position: position,
+    gmpDraggable: true,
+    title: "DRAG",
+  });
+
+  marker.addListener("dragend", () => {
+    const position = marker.position;
+    updateCoordsText(position.lat, position.lng);
+    infoWindow.setContent(
+      `Pin dropped at: ${position.lat}, ${position.lng}`,
+    );
+    infoWindow.open(marker.map, marker);
+  });
+}
+
+function updateCoordsText(lat, lng) {
+    document.getElementById('lat-input').value = lat;
+    document.getElementById('lng-input').value = lng;
+}
 
 //Event Listeners
 btnFromCoords.addEventListener('click', () => {
     const lat = document.getElementById('lat-input').value;
-    const lon = document.getElementById('lon-input').value;
+    const lng = document.getElementById('lng-input').value;
 
-    APP_STATE.updateCoords(lat, lon);
+    APP_STATE.updateCoords(lat, lng);
     APP_STATE.toggleGeoLocation(false);
 
-    callAPIs(lat, lon);
+    callAPIs(lat, lng);
 });
 
 btnFromGeo.addEventListener('click', getGeoLoc);

@@ -28,7 +28,3 @@ Light Rain: 0.1 - 2.5 mm/hr
 Moderate Rain: 2.6 - 7.5 mm/hr
 Heavy Rain: 7.6 - 50 mm/hr (this range can vary depending on location and definitions)
 Very Heavy Rain: Above 50 mm/hr
-
-Possible overview Icons:
-- Clear: Sun or Moon
-- Light Rain: 
