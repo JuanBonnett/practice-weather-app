@@ -227,31 +227,27 @@ function formatDate(dateString) {
 }
 
 async function initMap(lat, lng) {
-  const position = { lat: lat, lng: lng };
-  const { Map } = await google.maps.importLibrary("maps");
-  const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+    const position = { lat: lat, lng: lng };
+    const { Map } = await google.maps.importLibrary("maps");
+    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
-  const map = new Map(document.getElementById("map"), {
-    zoom: 11,
-    center: position,
-    mapId: "WEATHER-APP",
-  });
+    const map = new Map(document.getElementById("map"), {
+        zoom: 11,
+        center: position,
+        mapId: "WEATHER-APP",
+    });
 
-  const marker = new AdvancedMarkerElement({
-    map: map,
-    position: position,
-    gmpDraggable: true,
-    title: "DRAG",
-  });
+    const marker = new AdvancedMarkerElement({
+        map: map,
+        position: position,
+        gmpDraggable: true,
+        title: "DRAG",
+    });
 
-  marker.addListener("dragend", () => {
-    const position = marker.position;
-    updateCoordsText(position.lat, position.lng);
-    infoWindow.setContent(
-      `Pin dropped at: ${position.lat}, ${position.lng}`,
-    );
-    infoWindow.open(marker.map, marker);
-  });
+    marker.addListener("dragend", () => {
+        const position = marker.position;
+        updateCoordsText(position.lat, position.lng);
+    });
 }
 
 function updateCoordsText(lat, lng) {
