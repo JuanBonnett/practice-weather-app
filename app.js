@@ -255,26 +255,31 @@ function updateCoordsText(lat, lng) {
     document.getElementById('lng-input').value = lng;
 }
 
-//Event Listeners
-btnFromCoords.addEventListener('click', () => {
-    const lat = document.getElementById('lat-input').value;
-    const lng = document.getElementById('lng-input').value;
+function initEventListeners() {
+    btnFromCoords.addEventListener('click', () => {
+        const lat = document.getElementById('lat-input').value;
+        const lng = document.getElementById('lng-input').value;
 
-    APP_STATE.updateCoords(lat, lng);
-    APP_STATE.toggleGeoLocation(false);
+        APP_STATE.updateCoords(lat, lng);
+        APP_STATE.toggleGeoLocation(false);
 
-    callAPIs(lat, lng);
-});
+        callAPIs(lat, lng);
+    });
 
-btnFromGeo.addEventListener('click', getGeoLoc);
+    btnFromGeo.addEventListener('click', getGeoLoc);
 
-btnRefresh.addEventListener('click', () => {
-    if(APP_STATE.isGeolocationActive()) getGeoLoc();
-    else {
-        const coords = APP_STATE.getCoords();
-        callAPIs(coords.latitude, coords.longitude);
-    }
-});
+    btnRefresh.addEventListener('click', () => {
+        if(APP_STATE.isGeolocationActive()) getGeoLoc();
+        else {
+            const coords = APP_STATE.getCoords();
+            callAPIs(coords.latitude, coords.longitude);
+        }
+    });
+}
 
-//Program starts with Geo Location by default
-getGeoLoc();
+function init() {
+    initEventListeners();
+    getGeoLoc();
+}
+
+init();
