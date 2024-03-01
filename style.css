@@ -116,13 +116,13 @@ button#refresh:hover {
 }
 
 .title h1 {
-    font-weight: lighter;
     font-size: 1.5em;
 }
 
 .title h2 {
     color:#17002b;
     font-size: 1.1em;
+    font-weight: lighter;
 }
 
 .title h3 {

@@ -44,6 +44,7 @@ const btnFromGeo = document.getElementById('from-geo');
 const btnRefresh = document.getElementById('refresh');
 
 const APP_STATE = appState();
+let gMap = {};
 
 function appState() {
     let latitude;
@@ -78,7 +79,8 @@ function appState() {
         return geolocation;
     }
 
-    return {updateCoords, toggleGeoLocation, getCoords, isGeolocationActive, getLatitude, getLongitude};
+    return {updateCoords, toggleGeoLocation, getCoords, isGeolocationActive, 
+            getLatitude, getLongitude};
 }
 
 function geoLocSuccess(lat, lng) {
@@ -228,24 +230,24 @@ function formatDate(dateString) {
 
 async function initMap(lat, lng) {
     const position = { lat: lat, lng: lng };
-    const { Map } = await google.maps.importLibrary("maps");
-    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-
-    const map = new Map(document.getElementById("map"), {
+    const { Map } = await google.maps.importLibrary('maps');
+    const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
+    const mapOptions = {
         zoom: 11,
         center: position,
-        mapId: "WEATHER-APP",
-    });
+        mapId: 'WEATHER-APP',
+    };
 
-    const marker = new AdvancedMarkerElement({
-        map: map,
+    gMap.map = new Map(document.getElementById('map'), mapOptions);
+    gMap.marker = new AdvancedMarkerElement({
+        map: gMap.map,
         position: position,
         gmpDraggable: true,
-        title: "DRAG",
+        title: 'DRAG',
     });
 
-    marker.addListener("dragend", () => {
-        const position = marker.position;
+    gMap.marker.addListener('dragend', () => {
+        const position = gMap.marker.position;
         updateCoordsText(position.lat, position.lng);
     });
 }
@@ -255,15 +257,19 @@ function updateCoordsText(lat, lng) {
     document.getElementById('lng-input').value = lng;
 }
 
+function getWeatherFromCoords(lat, lng) {
+    APP_STATE.updateCoords(lat, lng);
+    APP_STATE.toggleGeoLocation(false);
+
+    gMap.map.setCenter({ lat : parseFloat(lat), lng : parseFloat(lng) });
+    gMap.marker.position = { lat : parseFloat(lat), lng : parseFloat(lng) };
+    callAPIs(lat, lng);
+}
+
 function initEventListeners() {
     btnFromCoords.addEventListener('click', () => {
-        const lat = document.getElementById('lat-input').value;
-        const lng = document.getElementById('lng-input').value;
-
-        APP_STATE.updateCoords(lat, lng);
-        APP_STATE.toggleGeoLocation(false);
-
-        callAPIs(lat, lng);
+        getWeatherFromCoords(document.getElementById('lat-input').value, 
+                             document.getElementById('lng-input').value)
     });
 
     btnFromGeo.addEventListener('click', getGeoLoc);
