@@ -44,7 +44,7 @@ const btnFromGeo = document.getElementById('from-geo');
 const btnRefresh = document.getElementById('refresh');
 
 const APP_STATE = appState();
-let gMap = {};
+let G_MAP = { map : undefined, marker : undefined, };
 
 function appState() {
     let latitude;
@@ -238,16 +238,16 @@ async function initMap(lat, lng) {
         mapId: 'WEATHER-APP',
     };
 
-    gMap.map = new Map(document.getElementById('map'), mapOptions);
-    gMap.marker = new AdvancedMarkerElement({
-        map: gMap.map,
+    G_MAP.map = new Map(document.getElementById('map'), mapOptions);
+    G_MAP.marker = new AdvancedMarkerElement({
+        map: G_MAP.map,
         position: position,
         gmpDraggable: true,
         title: 'DRAG',
     });
 
-    gMap.marker.addListener('dragend', () => {
-        const position = gMap.marker.position;
+    G_MAP.marker.addListener('dragend', () => {
+        const position = G_MAP.marker.position;
         updateCoordsText(position.lat, position.lng);
     });
 }
@@ -261,8 +261,8 @@ function getWeatherFromCoords(lat, lng) {
     APP_STATE.updateCoords(lat, lng);
     APP_STATE.toggleGeoLocation(false);
 
-    gMap.map.setCenter({ lat : parseFloat(lat), lng : parseFloat(lng) });
-    gMap.marker.position = { lat : parseFloat(lat), lng : parseFloat(lng) };
+    G_MAP.map.setCenter({ lat : parseFloat(lat), lng : parseFloat(lng) });
+    G_MAP.marker.position = { lat : parseFloat(lat), lng : parseFloat(lng) };
     callAPIs(lat, lng);
 }
 
