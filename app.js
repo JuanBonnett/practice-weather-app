@@ -44,7 +44,7 @@ const btnFromGeo = document.getElementById('from-geo');
 const btnRefresh = document.getElementById('refresh');
 
 const APP_STATE = appState();
-let G_MAP = { map : undefined, marker : undefined, };
+const G_MAP = { map : undefined, marker : undefined, };
 
 function appState() {
     let latitude;
@@ -87,6 +87,9 @@ function geoLocSuccess(lat, lng) {
     console.log('GeoLocation Success!');
     console.log(`Latitude: ${lat}`);
     console.log(`Longitude: ${lng}`);
+    APP_STATE.updateCoords(lat, lng);
+    APP_STATE.toggleGeoLocation(true);
+    initMap(lat, lng);
     updateCoordsText(lat, lng);
     callAPIs(lat, lng);
 }
@@ -205,9 +208,6 @@ function getGeoLoc() {
     };
 
     navigator.geolocation.getCurrentPosition((pos) => {
-        APP_STATE.updateCoords(pos.coords.latitude, pos.coords.longitude);
-        APP_STATE.toggleGeoLocation(true);
-        initMap(pos.coords.latitude, pos.coords.longitude);
         geoLocSuccess(pos.coords.latitude, pos.coords.longitude);
     }, 
     geoLocError, geoLocOptions);
@@ -229,16 +229,15 @@ function formatDate(dateString) {
 }
 
 async function initMap(lat, lng) {
-    const position = { lat: lat, lng: lng };
+    const position = { lat : lat, lng : lng };
     const { Map } = await google.maps.importLibrary('maps');
     const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
-    const mapOptions = {
+
+    G_MAP.map = new Map(document.getElementById('map'), {
         zoom: 11,
         center: position,
         mapId: 'WEATHER-APP',
-    };
-
-    G_MAP.map = new Map(document.getElementById('map'), mapOptions);
+    });
     G_MAP.marker = new AdvancedMarkerElement({
         map: G_MAP.map,
         position: position,
