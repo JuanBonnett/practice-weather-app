@@ -3,43 +3,40 @@ const ICON_PATH = 'icons/';
 const PINF = Number.POSITIVE_INFINITY;
 const DAY_ICON = 'sun.png';
 const NIGHT_ICON = 'moon.png';
-
-const ICON_TEMP_THRESHOLDS = [
-    [10,   'freezing.png'],
-    [15,   'cold.png'],
-    [27,   'cool.png'],
-    [31,   'sweat.png'],
-    [PINF, 'melting.png']
-];
-
-const WIND_THRESHOLDS = [
-    [10,   'Calm'],
-    [30,   'Light Breeze'],
-    [50,   'Moderate Breeze'],
-    [75,   'Strong Breeze'],
-    [100,  'High Winds'],
-    [125,  'Gale'],
-    [150,  'Storms'],
-    [PINF, 'Holy Shit, Hide!']
-];
-
-const DRY_CLOUD_THRESHOLDS = [
-    [20, { title : 'Clear', icon : 'clear.png' }],
-    [40, { title : 'Scattered', icon : 'scattered.png' }],
-    [70, { title : 'Partly Cloudy', icon : 'pcloudy.png' }],
-    [90, { title : 'Mostly Cloudy', icon : 'mcloudy.png' }],
-    [PINF, { title : 'Overcast', icon : 'overcast.png' }],
-];
-
-const RAIN_CLOUD_THRESHOLDS = [
-    [2, { title : 'Light Rain', icon : 'lrain.png' }],
-    [6, { title : 'Rainy', icon : 'mrain.png' }],
-    [9, { title : 'Moderate Rain', icon : 'mrain.png' }],
-    [12, { title : 'Heavy Rain', icon : 'storm.png' }],
-    [PINF, { title : 'Very Heavy Rain', icon : 'storm.png' }],
-];
-
 const APP_STATE = appState();
+const WEATHER_THRESHOLDS = {
+    ICON_TEMP :  [
+        [10,   'freezing.png'],
+        [15,   'cold.png'],
+        [27,   'cool.png'],
+        [31,   'sweat.png'],
+        [PINF, 'melting.png']
+    ],
+    WIND : [
+        [10,   'Calm'],
+        [30,   'Light Breeze'],
+        [50,   'Moderate Breeze'],
+        [75,   'Strong Breeze'],
+        [100,  'High Winds'],
+        [125,  'Gale'],
+        [150,  'Storms'],
+        [PINF, 'Holy Shit, Hide!']
+    ],
+    DRY_CLOUD : [
+        [20, { title : 'Clear', icon : 'clear.png' }],
+        [40, { title : 'Scattered', icon : 'scattered.png' }],
+        [70, { title : 'Partly Cloudy', icon : 'pcloudy.png' }],
+        [90, { title : 'Mostly Cloudy', icon : 'mcloudy.png' }],
+        [PINF, { title : 'Overcast', icon : 'overcast.png' }],
+    ],
+    RAIN_CLOUD : [
+        [2, { title : 'Light Rain', icon : 'lrain.png' }],
+        [6, { title : 'Rainy', icon : 'mrain.png' }],
+        [9, { title : 'Moderate Rain', icon : 'mrain.png' }],
+        [12, { title : 'Heavy Rain', icon : 'storm.png' }],
+        [PINF, { title : 'Very Heavy Rain', icon : 'storm.png' }],
+    ]
+};
 
 function appState() {
     let latitude;
@@ -84,8 +81,8 @@ function appState() {
         return geolocation;
     }
 
-    return {updateCoords, toggleGeoLocation, getCoords, isGeolocationActive, 
-            getLatitude, getLongitude, updateMap, getMap};
+    return { updateCoords, toggleGeoLocation, getCoords, isGeolocationActive, 
+            getLatitude, getLongitude, updateMap, getMap };
 }
 
 function geoLocSuccess(lat, lng) {
@@ -158,7 +155,7 @@ function displayCurrentWeather(data) {
     lblApparentTemp.innerHTML = current.apparent_temperature + units.temperature_2m;
     lblHumidity.innerHTML = current.relative_humidity_2m + units.relative_humidity_2m;
     lblPressure.innerHTML = current.surface_pressure + units.surface_pressure;
-    iconTemp.src = ICON_PATH + ICON_TEMP_THRESHOLDS.find(i => i[0] >= current.temperature_2m)[1];
+    iconTemp.src = ICON_PATH + WEATHER_THRESHOLDS.ICON_TEMP.find(i => i[0] >= current.temperature_2m)[1];
 
     //Clouds & Precipitation
     lblCloudCover.innerHTML = current.cloud_cover + units.cloud_cover;
@@ -167,11 +164,11 @@ function displayCurrentWeather(data) {
     lblShowers.innerHTML = current.showers + units.showers;
     //Pick icon for the cloud and rain conditions
     if(current.precipitation > 0) {
-        const rain = RAIN_CLOUD_THRESHOLDS.find(i => i[0] >= current.precipitation)[1];
+        const rain = WEATHER_THRESHOLDS.RAIN_CLOUD.find(i => i[0] >= current.precipitation)[1];
         iconCloudCover.src = ICON_PATH + rain.icon;
         lblCloudDescription.innerHTML = rain.title; 
     } else { 
-        const clouds = DRY_CLOUD_THRESHOLDS.find(i => i[0] >= current.cloud_cover)[1];
+        const clouds = WEATHER_THRESHOLDS.DRY_CLOUD.find(i => i[0] >= current.cloud_cover)[1];
         iconCloudCover.src = ICON_PATH + clouds.icon;
         lblCloudDescription.innerHTML = clouds.title;
     }
@@ -180,7 +177,7 @@ function displayCurrentWeather(data) {
     lblWindSpeed.innerHTML = current.wind_speed_10m + units.wind_speed_10m;
     lblWindDirection.innerHTML = current.wind_direction_10m + units.wind_direction_10m;
     lblWindGusts.innerHTML = current.wind_gusts_10m + units.wind_gusts_10m;
-    lblWindDescription.innerHTML = WIND_THRESHOLDS.find(i => i[0] >= current.wind_speed_10m)[1];
+    lblWindDescription.innerHTML = WEATHER_THRESHOLDS.WIND.find(i => i[0] >= current.wind_speed_10m)[1];
     //Rotates the wind direction icon accordingly
     iconWindDir.style.transform = `rotate(${current.wind_direction_10m}deg)`;
 
