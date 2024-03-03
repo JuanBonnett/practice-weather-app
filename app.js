@@ -39,10 +39,6 @@ const RAIN_CLOUD_THRESHOLDS = [
     [PINF, { title : 'Very Heavy Rain', icon : 'storm.png' }],
 ];
 
-const btnFromCoords = document.getElementById('from-coords');
-const btnFromGeo = document.getElementById('from-geo');
-const btnRefresh = document.getElementById('refresh');
-
 const APP_STATE = appState();
 const G_MAP = { map : undefined, marker : undefined, };
 
@@ -96,9 +92,7 @@ function geoLocSuccess(lat, lng) {
 
 function callAPIs(lat, lng) {
     getOpenMeteo(lat, lng, displayCurrentWeather);
-    getCity(lat, lng, (city) => {
-        document.getElementById('city').innerHTML = city;
-    });
+    getCity(lat, lng, (city) => updateCityText(city));
 }
 
 function geoLocError(error) {
@@ -185,6 +179,15 @@ function displayCurrentWeather(data) {
     iconTimeOfDay.src = current.is_day == 1 ? ICON_PATH + DAY_ICON : ICON_PATH + NIGHT_ICON;
 }
 
+function updateCoordsText(lat, lng) {
+    document.getElementById('lat-input').value = lat;
+    document.getElementById('lng-input').value = lng;
+}
+
+function updateCityText(city) {
+    document.getElementById('city').innerHTML = city;
+}
+
 function getCity(lat, lng, callBack) {
     const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}` +
                 `&result_type=administrative_area_level_2|country&key=${G_KEY}`;
@@ -192,7 +195,7 @@ function getCity(lat, lng, callBack) {
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
-            console.log('Data from Google Map API');
+            console.log('Data from Google Geocode API');
             console.log(data);
             const city = data.results[0].formatted_address;
             callBack(city);
@@ -251,11 +254,6 @@ async function initMap(lat, lng) {
     });
 }
 
-function updateCoordsText(lat, lng) {
-    document.getElementById('lat-input').value = lat;
-    document.getElementById('lng-input').value = lng;
-}
-
 function getWeatherFromCoords(lat, lng) {
     APP_STATE.updateCoords(lat, lng);
     APP_STATE.toggleGeoLocation(false);
@@ -266,6 +264,10 @@ function getWeatherFromCoords(lat, lng) {
 }
 
 function initEventListeners() {
+    const btnFromCoords = document.getElementById('from-coords');
+    const btnFromGeo = document.getElementById('from-geo');
+    const btnRefresh = document.getElementById('refresh');
+
     btnFromCoords.addEventListener('click', () => {
         getWeatherFromCoords(document.getElementById('lat-input').value, 
                              document.getElementById('lng-input').value)
