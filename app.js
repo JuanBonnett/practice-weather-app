@@ -40,12 +40,21 @@ const RAIN_CLOUD_THRESHOLDS = [
 ];
 
 const APP_STATE = appState();
-const G_MAP = { map : undefined, marker : undefined, };
 
 function appState() {
     let latitude;
     let longitude;
     let geolocation = true;
+    let mapObj = { map : undefined, marker : undefined, };
+
+    function updateMap(map, marker) {
+        mapObj.map = map;
+        mapObj.marker = marker;
+    }
+
+    function getMap() {
+        return mapObj;
+    }
 
     function updateCoords(newLat, newLon) {
         latitude = newLat;
@@ -76,7 +85,7 @@ function appState() {
     }
 
     return {updateCoords, toggleGeoLocation, getCoords, isGeolocationActive, 
-            getLatitude, getLongitude};
+            getLatitude, getLongitude, updateMap, getMap};
 }
 
 function geoLocSuccess(lat, lng) {
@@ -235,31 +244,36 @@ async function initMap(lat, lng) {
     const position = { lat : lat, lng : lng };
     const { Map } = await google.maps.importLibrary('maps');
     const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
-
-    G_MAP.map = new Map(document.getElementById('map'), {
+    
+    const map = new Map(document.getElementById('map'), {
         zoom: 11,
         center: position,
         mapId: 'WEATHER-APP',
     });
-    G_MAP.marker = new AdvancedMarkerElement({
-        map: G_MAP.map,
+    const marker = new AdvancedMarkerElement({
+        map: map,
         position: position,
         gmpDraggable: true,
         title: 'DRAG',
     });
 
-    G_MAP.marker.addListener('dragend', () => {
-        const position = G_MAP.marker.position;
+    marker.addListener('dragend', () => {
+        const position = marker.position;
         updateCoordsText(position.lat, position.lng);
     });
+
+    APP_STATE.updateMap(map, marker);
 }
 
 function getWeatherFromCoords(lat, lng) {
+    let gMap = APP_STATE.getMap();
+
     APP_STATE.updateCoords(lat, lng);
     APP_STATE.toggleGeoLocation(false);
 
-    G_MAP.map.setCenter({ lat : parseFloat(lat), lng : parseFloat(lng) });
-    G_MAP.marker.position = { lat : parseFloat(lat), lng : parseFloat(lng) };
+    gMap.map.setCenter({ lat : parseFloat(lat), lng : parseFloat(lng) });
+    gMap.marker.position = { lat : parseFloat(lat), lng : parseFloat(lng) };
+    APP_STATE.updateMap(gMap.map, gMap.marker);
     callAPIs(lat, lng);
 }
 
