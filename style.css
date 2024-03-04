@@ -112,24 +112,26 @@ button#refresh:hover {
 
 .title {
     color: #280049;
-    margin-bottom: 27px;
+    margin-bottom: 15px;
 }
 
 .title h1 {
     font-size: 1.5em;
+    margin-bottom: 7px;
 }
 
 .title h2 {
     color:#17002b;
     font-size: 1.1em;
     font-weight: lighter;
+    margin-bottom: 7px;
 }
 
 .title h3 {
-    margin-top: 27px;
     font-size: 0.8em;
     font-weight: lighter;
     color:#390368;
+    margin-bottom: 7px;
 }
 
 .widget .card {
