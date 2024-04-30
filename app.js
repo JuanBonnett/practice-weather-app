@@ -251,8 +251,9 @@ function locationFieldAutoComplete() {
         fields : ['place_id', 'geometry', 'name'], 
     });
     ac.addListener('place_changed', () => {
-        const lat = ac.getPlace().geometry.location.lat();
-        const lng = ac.getPlace().geometry.location.lng();
+        let place = ac.getPlace();
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
         getWeatherFromCoords(lat, lng);
     });
 }
